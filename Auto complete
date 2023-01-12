@@ -1,0 +1,97 @@
+import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+public class Runner {
+
+	static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    
+	
+	public static void main(String[] args) throws IOException{
+		Trie t = new Trie();
+		int n = Integer.parseInt(br.readLine().trim());
+        ArrayList<String> input = new ArrayList<String>();
+        String[] words = br.readLine().split("\\s");
+		for(int i = 0; i < n; i++) {
+			
+			input.add(words[i]);
+		}
+		String pattern = br.readLine();
+		t.autoComplete(input, pattern);
+	}
+}
+//__________________________________________________________________
+class TrieNode{
+	char data;
+	boolean isTerminating;
+	TrieNode children[];
+	int childCount;
+
+	public TrieNode(char data) {
+		this.data = data;
+		isTerminating = false;
+		children = new TrieNode[26];
+		childCount = 0;
+	}
+}
+
+public class Trie {
+	private TrieNode root;
+	public int count;
+
+	public Trie() {
+		root = new TrieNode('\0');
+	}
+
+	private void add(TrieNode root, String word){
+		if(word.length() == 0){
+			root.isTerminating = true;
+			return;
+		}		
+		int childIndex = word.charAt(0) - 'a';
+		TrieNode child = root.children[childIndex];
+		if(child == null){
+			child = new TrieNode(word.charAt(0));
+			root.children[childIndex] = child;
+			root.childCount++;
+		}
+		add(child, word.substring(1));
+	}
+
+	public void add(String word){
+		add(root, word);
+	}
+	
+	
+	public void autoComplete(ArrayList<String> input, String word) {
+
+        // Write your code here
+		for(int i = 0; i< input.size() ; i++)
+			add(input.get(i));
+		
+		autoCompleteHelperFunction(root, word , "");
+    }
+	private void autoCompleteHelperFunction(TrieNode root , String word , String output){
+
+          if(word.length()==0){ 
+
+			  if(root.isTerminating)
+			       System.out.println(output);
+
+                     if(root.childCount==0)
+					 return;
+
+					   int count = 0;
+					   for(int i = 0 ; count < root.childCount ; i++){
+						   if(root.children[i] !=null ){
+						          autoCompleteHelperFunction(root.children[i], word , output+root.children[i].data);
+						           count++;
+						   }
+					   }
+					   return;
+				   }
+			 int index = word.charAt(0)-'a';
+			 if(root.children[index]==null)return;
+             autoCompleteHelperFunction(root.children[index], word.substring(1), output+word.charAt(0));
+	}
+}
